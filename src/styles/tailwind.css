@@ -1,0 +1,157 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        /* Primary Colors */
+        --color-primary: #0057B8;
+        /* Ethiopian transport authority blue */
+        --color-primary-foreground: #FFFFFF;
+        /* white */
+        --color-secondary: #2563EB;
+        /* blue-600 */
+        --color-secondary-foreground: #FFFFFF;
+        /* white */
+
+        /* Background Colors */
+        --color-background: #FAFAFA;
+        /* gray-50 */
+        --color-foreground: #1F2937;
+        /* gray-800 */
+        --color-surface: #FFFFFF;
+        /* white */
+
+        /* Accent Colors */
+        --color-accent: #059669;
+        /* emerald-600 */
+        --color-accent-foreground: #FFFFFF;
+        /* white */
+
+        /* Status Colors */
+        --color-success: #10B981;
+        /* emerald-500 */
+        --color-success-foreground: #FFFFFF;
+        /* white */
+        --color-warning: #F59E0B;
+        /* amber-500 */
+        --color-warning-foreground: #FFFFFF;
+        /* white */
+        --color-error: #EF4444;
+        /* red-500 */
+        --color-error-foreground: #FFFFFF;
+        /* white */
+        --color-destructive: #EF4444;
+        /* red-500 */
+        --color-destructive-foreground: #FFFFFF;
+        /* white */
+
+        /* UI Element Colors */
+        --color-card: #FFFFFF;
+        /* white */
+        --color-card-foreground: #1F2937;
+        /* gray-800 */
+        --color-popover: #FFFFFF;
+        /* white */
+        --color-popover-foreground: #1F2937;
+        /* gray-800 */
+        --color-muted: #F3F4F6;
+        /* gray-100 */
+        --color-muted-foreground: #6B7280;
+        /* gray-500 */
+
+        /* Form Elements */
+        --color-border: #E5E7EB;
+        /* gray-200 */
+        --color-input: #FFFFFF;
+        /* white */
+        --color-ring: #0057B8;
+        /* Ethiopian transport authority blue */
+
+        /* Text Colors */
+        --color-text-primary: #1F2937;
+        /* gray-800 */
+        --color-text-secondary: #6B7280;
+        /* gray-500 */
+
+        /* Shadow Variables */
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+        /* Border Radius */
+        --radius: 0.5rem;
+    }
+
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        @apply font-inter;
+    }
+
+    .font-mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply bg-primary text-primary-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-200;
+    }
+
+    .btn-secondary {
+        @apply bg-secondary text-secondary-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-200;
+    }
+
+    .card {
+        @apply bg-card text-card-foreground rounded-lg border shadow-md;
+    }
+
+    .input {
+        @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    .nav-link {
+        @apply flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors duration-200 hover:bg-muted hover:text-foreground focus:bg-muted focus:text-foreground focus:outline-none;
+    }
+
+    .nav-link-active {
+        @apply bg-primary text-primary-foreground;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
+
+    .transition-smooth {
+        transition: all 200ms ease-out;
+    }
+
+    .transition-medium {
+        transition: all 300ms ease-out;
+    }
+
+    .shadow-elevation {
+        box-shadow: var(--shadow-md);
+    }
+
+    .shadow-elevation-lg {
+        box-shadow: var(--shadow-lg);
+    }
+}
