@@ -1,6 +1,13 @@
 'use client';
 
+import { GoogleMap, LoadScript, Marker, Polyline } from '@react-google-maps/api';
 import Icon from '@/components/ui/AppIcon';
+
+interface StopPoint {
+  name: string;
+  coordinates: { latitude: number; longitude: number };
+  order: number;
+}
 
 interface RouteMapViewerProps {
   routeNumber: string;
@@ -8,12 +15,25 @@ interface RouteMapViewerProps {
   startPoint: string;
   endPoint: string;
   onClose: () => void;
+  stops?: StopPoint[]; // optional for now; fallback to a mock point
 }
 
-const RouteMapViewer = ({ routeNumber, routeName, startPoint, endPoint, onClose }: RouteMapViewerProps) => {
-  // Mock coordinates for Addis Ababa route
-  const mockLat = 9.0320;
-  const mockLng = 38.7469;
+const containerStyle: google.maps.MapOptions & { height?: string } = {
+  disableDefaultUI: true,
+  zoomControl: true,
+};
+
+const RouteMapViewer = ({ routeNumber, routeName, startPoint, endPoint, onClose, stops = [] }: RouteMapViewerProps) => {
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string | undefined;
+
+  // fallback to Addis Ababa center
+  const defaultCenter = { lat: 9.032, lng: 38.7469 };
+
+  const path = stops
+    .sort((a, b) => a.order - b.order)
+    .map((s) => ({ lat: s.coordinates.latitude, lng: s.coordinates.longitude }));
+
+  const center = path.length > 0 ? path[Math.floor(path.length / 2)] : defaultCenter;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-500">
@@ -29,26 +49,28 @@ const RouteMapViewer = ({ routeNumber, routeName, startPoint, endPoint, onClose 
               {startPoint} → {endPoint}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-muted rounded-md transition-colors duration-200"
-          >
+          <button onClick={onClose} className="p-2 hover:bg-muted rounded-md transition-colors duration-200">
             <Icon name="XMarkIcon" size={24} className="text-text-secondary" />
           </button>
         </div>
 
         {/* Map Container */}
         <div className="relative h-96 bg-muted">
-          <iframe
-            width="100%"
-            height="100%"
-            loading="lazy"
-            title={`${routeName} Route Map`}
-            referrerPolicy="no-referrer-when-downgrade"
-            src={`https://www.google.com/maps?q=${mockLat},${mockLng}&z=14&output=embed`}
-            className="border-0"
-          />
-          
+          {apiKey ? (
+            <LoadScript googleMapsApiKey={apiKey} loadingElement={<div className="h-full w-full" />}> 
+              <GoogleMap mapContainerStyle={{ width: '100%', height: '100%' }} center={center} zoom={13} options={containerStyle}>
+                {path.length > 0 && (
+                  <Polyline path={path} options={{ strokeColor: '#2563EB', strokeOpacity: 0.9, strokeWeight: 4 }} />
+                )}
+                {path.map((p, idx) => (
+                  <Marker key={idx} position={p} />
+                ))}
+              </GoogleMap>
+            </LoadScript>
+          ) : (
+            <div className="flex items-center justify-center h-full text-text-secondary text-sm">Missing NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</div>
+          )}
+
           {/* Map Overlay Info */}
           <div className="absolute top-4 left-4 bg-surface/95 backdrop-blur-sm rounded-lg p-4 shadow-elevation max-w-xs">
             <div className="flex items-center space-x-2 mb-2">
@@ -58,8 +80,7 @@ const RouteMapViewer = ({ routeNumber, routeName, startPoint, endPoint, onClose 
             <div className="space-y-1 text-xs text-text-secondary">
               <p><strong>Start:</strong> {startPoint}</p>
               <p><strong>End:</strong> {endPoint}</p>
-              <p><strong>Distance:</strong> ~15.2 km</p>
-              <p><strong>Avg. Time:</strong> 45-60 min</p>
+              <p><strong>Stops:</strong> {stops?.length ?? 0}</p>
             </div>
           </div>
         </div>

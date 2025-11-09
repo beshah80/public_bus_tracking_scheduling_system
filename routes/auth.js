@@ -2,9 +2,9 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
-const auth = require('../middleware/auth');
+const { auth } = require('../middleware/auth');
 
-const router = express?.Router();
+const router = express.Router();
 
 // @route   POST /api/auth/login
 // @desc    Authenticate user and get token
@@ -99,14 +99,15 @@ router?.post('/login', [
 // @route   POST /api/auth/register
 // @desc    Register new user (admin only)
 // @access  Private (Admin)
-router?.post('/register', [
-    auth,
-    body('name')?.trim()?.isLength({ min: 2, max: 100 })?.withMessage('Name must be between 2 and 100 characters'),
-    body('email')?.isEmail()?.normalizeEmail()?.withMessage('Please provide a valid email'),
-    body('password')?.isLength({ min: 6 })?.withMessage('Password must be at least 6 characters'),
-    body('role')?.isIn(['admin', 'driver', 'passenger'])?.withMessage('Invalid role specified'),
-    body('phoneNumber')?.optional()?.isMobilePhone()?.withMessage('Please provide a valid phone number')
-], async (req, res) => {
+router.post(
+  '/register',
+  auth,
+  body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Name must be between 2 and 100 characters'),
+  body('email').isEmail().normalizeEmail().withMessage('Please provide a valid email'),
+  body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  body('role').isIn(['admin', 'driver', 'passenger']).withMessage('Invalid role specified'),
+  body('phoneNumber').optional().isMobilePhone().withMessage('Please provide a valid phone number'),
+  async (req, res) => {
     try {
         // Check if requesting user is admin
         if (req?.user?.role !== 'admin') {

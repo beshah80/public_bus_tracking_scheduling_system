@@ -4,6 +4,12 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
+const { ApolloServer } = require('@apollo/server');
+const { expressMiddleware } = require('@apollo/server/express4');
+const { typeDefs } = require('./graphql/schema');
+const { resolvers } = require('./graphql/resolvers');
+const jwt = require('jsonwebtoken');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -38,7 +44,35 @@ mongoose?.connect(process.env.MONGODB_URI, {
     process.exit(1);
 });
 
-// Routes
+// GraphQL setup
+let apolloStarted = false;
+(async () => {
+    const server = new ApolloServer({ typeDefs, resolvers });
+    await server.start();
+    apolloStarted = true;
+    app.use('/graphql',
+        cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }),
+        bodyParser.json(),
+        expressMiddleware(server, {
+            context: async ({ req }) => {
+                const auth = req?.headers?.authorization || '';
+                const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+                let user = null;
+                let userId = null;
+                if (token && process.env.JWT_SECRET) {
+                    try {
+                        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                        user = decoded?.user || null;
+                        userId = user?.id || null;
+                    } catch (_) {}
+                }
+                return { user, userId };
+            },
+        })
+    );
+})();
+
+// REST Routes
 app?.use('/api/auth', authRoutes);
 app?.use('/api/admin', adminRoutes);
 app?.use('/api/driver', driverRoutes);
